@@ -1,6 +1,6 @@
-# 🐼 Panda Template Manifest – HTML Starter (Enterprise)
+# RiverX Template Manifest – HTML Starter (Enterprise)
 
-> Enterprise-grade AI operating manual for this Panda template.
+> Enterprise-grade AI operating manual for this RiverX template.
 > This document is the highest authority governing AI-driven code suggestions, edits, and diffs.
 
 ---
@@ -8,10 +8,10 @@
 ## 1. Template Metadata (DO NOT MODIFY STRUCTURE)
 
 ```md
-# Panda Template Manifest
+# RiverX Template Manifest
 
 template_name: "HTML Starter"
-template_id: "panda-html-starter-001"
+template_id: "riverx-html-starter-001"
 template_version: "1.0.0"
 template_type: "landing-template"
 layout_style: "single-page, conversion-focused"
@@ -19,7 +19,7 @@ technology_stack: ["HTML5", "CSS3"]
 responsive: true
 dark_mode: false
 rtl_supported: false
-author: "Panda Templates"
+author: "RiverX Templates"
 last_updated: "2026-03-06"
 ```
 

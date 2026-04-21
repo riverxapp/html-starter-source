@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN apk add --no-cache git ca-certificates
 
-COPY . .
+COPY scripts/ ./scripts/
 
 EXPOSE 8080
 

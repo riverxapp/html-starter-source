@@ -1,39 +1,48 @@
 import { exec } from "child_process";
 import { triggerReload } from "./static-server.js";
 
-process.chdir("/app"); // 🔑 FORCE correct git root
-
-const BRANCH = process.env.PREVIEW_BRANCH || "main";
-let lastSha = null;
-
-function run(cmd) {
+function run(cmd, cwd) {
   return new Promise((resolve, reject) => {
-    exec(cmd, { cwd: "/app" }, (err, stdout) => {
+    exec(cmd, { cwd }, (err, stdout) => {
       if (err) return reject(err.message);
       resolve(stdout.trim());
     });
   });
 }
 
-export async function startGitPoll() {
-  console.log("[git-poll] started");
+export async function startGitPoll(options = {}) {
+  const cwd = options.cwd || process.cwd();
+  const branch = options.branch || process.env.PREVIEW_BRANCH || "main";
+  const intervalMs = Number(options.intervalMs || process.env.GIT_POLL_INTERVAL || "2000");
+  const onUpdate = options.onUpdate;
+  let lastSha = null;
+
+  if (!process.env.REPO_URL) {
+    console.log("[git-poll] REPO_URL not set; polling disabled");
+    return;
+  }
+
+  console.log(`[git-poll] started for ${branch} every ${intervalMs}ms`);
 
   async function poll() {
     try {
-      await run(`git fetch --depth=1 origin ${BRANCH}`);
-      const sha = await run(`git rev-parse origin/${BRANCH}`);
+      await run(`git fetch --depth=1 origin ${branch}`, cwd);
+      const sha = await run(`git rev-parse origin/${branch}`, cwd);
 
       if (sha !== lastSha) {
-        console.log("[git-poll] update detected");
-        await run(`git reset --hard origin/${BRANCH}`);
+        if (lastSha) {
+          console.log("[git-poll] update detected");
+          await run(`git reset --hard origin/${branch}`, cwd);
+          triggerReload();
+          if (typeof onUpdate === "function") onUpdate(sha);
+        }
         lastSha = sha;
-        triggerReload();
       }
     } catch (e) {
       console.error("[git-poll]", e);
     }
 
-    setTimeout(poll, 2000);
+    setTimeout(poll, intervalMs);
   }
 
   poll();

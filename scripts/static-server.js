@@ -1,15 +1,14 @@
 import http from "http";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
-const PORT = process.env.PORT || 8080;
-const ROOT = process.cwd(); // /app
+const PORT = Number(process.env.PORT || "5173");
+const HOST = process.env.HOST || "0.0.0.0";
+const ROOT = process.cwd();
 
 const clients = new Set();
 
 const server = http.createServer((req, res) => {
-  // SSE endpoint for reload
   if (req.url === "/__hmr") {
     res.writeHead(200, {
       "Content-Type": "text/event-stream",
@@ -23,21 +22,20 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Serve static files
-  let filePath = path.join(
-    ROOT,
-    req.url === "/" ? "index.html" : req.url
-  );
+  const reqPath = (req.url || "/").split("?")[0];
+  const filePath = path.join(ROOT, reqPath === "/" ? "index.html" : reqPath);
 
   if (!filePath.startsWith(ROOT)) {
     res.writeHead(403);
-    return res.end();
+    res.end("Forbidden");
+    return;
   }
 
   fs.readFile(filePath, (err, content) => {
     if (err) {
       res.writeHead(404);
-      return res.end("Not found");
+      res.end("Not found");
+      return;
     }
 
     res.writeHead(200);
@@ -45,11 +43,19 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`[static] serving ${ROOT} on ${PORT}`);
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(`[static] port ${PORT} is already in use`);
+  } else {
+    console.error("[static] server error", error);
+  }
+  process.exit(1);
 });
 
-// 🔥 reload trigger
+server.listen(PORT, HOST, () => {
+  console.log(`[static] serving ${ROOT} on ${HOST}:${PORT}`);
+});
+
 export function triggerReload() {
   for (const res of clients) {
     res.write("data: reload\n\n");

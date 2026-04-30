@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HTML Starter - Productivity Platform</title>
+  <title>RiverX App</title>
+  <script>
+    window.__APP_CONFIG__ = window.__APP_CONFIG__ || {};
+    window.__APP_CONFIG__.appName = window.__APP_CONFIG__.appName || 'RiverX App';
+    window.__APP_CONFIG__.apiBaseUrl = window.__APP_CONFIG__.apiBaseUrl || '/api';
+    document.title = window.__APP_CONFIG__.appName;
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {

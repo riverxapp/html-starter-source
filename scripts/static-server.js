@@ -2,8 +2,17 @@ import http from "http";
 import fs from "fs";
 import path from "path";
 
-const PORT = Number(process.env.PORT || "5173");
-const HOST = process.env.HOST || "0.0.0.0";
+function getCliFlag(name) {
+  const args = process.argv.slice(2);
+  const direct = args.find((arg) => arg.startsWith(`${name}=`));
+  if (direct) return direct.slice(name.length + 1);
+  const idx = args.indexOf(name);
+  if (idx !== -1 && args[idx + 1]) return args[idx + 1];
+  return undefined;
+}
+
+const PORT = Number(getCliFlag("--port") || process.env.PORT || "5173");
+const HOST = getCliFlag("--host") || process.env.HOST || "0.0.0.0";
 const ROOT = process.cwd();
 
 const clients = new Set();

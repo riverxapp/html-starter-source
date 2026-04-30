@@ -20,8 +20,14 @@ function getCliFlag(name) {
   return undefined;
 }
 
-const PORT = String(getCliFlag("--port") || process.env.PORT || "5173");
-const HOST = getCliFlag("--host") || process.env.HOST || "0.0.0.0";
+function getCliEnvLike(name) {
+  const arg = process.argv.slice(2).find((entry) => entry.startsWith(`${name}=`));
+  if (!arg) return undefined;
+  return arg.slice(name.length + 1);
+}
+
+const PORT = String(getCliFlag("--port") || getCliEnvLike("PORT") || process.env.PORT || "5173");
+const HOST = getCliFlag("--host") || getCliEnvLike("HOST") || process.env.HOST || "0.0.0.0";
 const HEALTHCHECK_PATH = process.env.HEALTHCHECK_PATH || "/";
 const VITE_DEV = String(process.env.VITE_DEV || "true").toLowerCase() === "true";
 const NEXT_DEV = String(process.env.NEXT_DEV || "true").toLowerCase() === "true";
